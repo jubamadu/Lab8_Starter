@@ -1,4 +1,5 @@
 # Lab 8 - Starter - Justin Ubamadu
+## Understanding Checks:
 1. We need to make sure that the all the recipe information is displayed correctly, since it's being constantly updated either by the user or the default options. So only testing after development is complete or manually won't allow us to check regularly enough for errors. 
 2. Yes
 3. No, because there are too many factors to consider for unit testing. Are there illegal characters, or illegal words? Is there a character limit? What happens if the address for the message isn't correct? There are too many moving parts that rely on one another for unit testing to be the ideal testing method in this case. 
