@@ -1,7 +1,10 @@
+const { loadOptions } = require("@babel/core");
+
 describe('Basic user flow for Website', () => {
   // First, visit the lab 8 website
   beforeAll(async () => {
-    await page.goto('https://cse110-f2021.github.io/Lab8_Website');
+    // await page.goto('https://cse110-f2021.github.io/Lab8_Website');
+    await page.goto('http://127.0.0.1:5500/index.html');
   });
 
   // Next, check to make sure that all 20 <product-item> elements have loaded
@@ -37,6 +40,16 @@ describe('Basic user flow for Website', () => {
 
     // TODO - Step 1
     // Right now this function is only checking the first <product-item> it found, make it so that
+    for(let i = 1; i < prodItems.length;i++){
+      data = await prodItems[i].getProperty('data');
+      // Convert that property to JSON
+      plainValue = await data.jsonValue();
+      // Make sure the title, price, and image are populated in the JSON
+      if (plainValue.title.length == 0) { allArePopulated = false; }
+      if (plainValue.price.length == 0) { allArePopulated = false; }
+      if (plainValue.image.length == 0) { allArePopulated = false; }
+      expect(allArePopulated).toBe(true);
+    }
     // it checks every <product-item> it found
 
   }, 10000);
@@ -50,6 +63,19 @@ describe('Basic user flow for Website', () => {
     // Grab the shadowRoot of that element (it's a property), then query a button from that shadowRoot.
     // Once you have the button, you can click it and check the innerText property of the button.
     // Once you have the innerText property, use innerText.jsonValue() to get the text value of it
+    let textUpdated = true;
+    const prodItems = await page.$$('product-item');
+
+    let shadow = await prodItems[0].getProperty('shadowRoot');
+    let btn = await shadow.waitForSelector('button');
+    await btn.click();
+    let textVal = await btn.getProperty('innerText');
+    btnLabel = await textVal.jsonValue();
+    if(btnLabel != "Remove from Cart") {textUpdated = false;}
+    expect(textUpdated).toBe(true);
+    
+   
+
   }, 2500);
 
   // Check to make sure that after clicking "Add to Cart" on every <product-item> that the Cart
@@ -60,6 +86,19 @@ describe('Basic user flow for Website', () => {
     // Query select all of the <product-item> elements, then for every single product element
     // get the shadowRoot and query select the button inside, and click on it.
     // Check to see if the innerText of #cart-count is 20
+    maxValCheck = true;
+    const prodItems = await page.$$('product-item');
+    for(let i = 1; i < prodItems.length; i++){
+      let shadow = await prodItems[i].getProperty('shadowRoot');
+      let btn = await shadow.waitForSelector('button');
+      await btn.click();
+    }
+    const v = await page.$('#cart-count');
+    text = await v.getProperty('innerText');
+    t = await text.jsonValue();
+    if(t != "20") {maxValCheck = false;}
+    expect(maxValCheck).toBe(true);
+
   }, 10000);
 
   // Check to make sure that after you reload the page it remembers all of the items in your cart
@@ -69,6 +108,15 @@ describe('Basic user flow for Website', () => {
     // Reload the page, then select all of the <product-item> elements, and check every
     // element to make sure that all of their buttons say "Remove from Cart".
     // Also check to make sure that #cart-count is still 20
+    maxValCheck = true;
+
+    //page.reload({waitUntil:"networkidle2"});
+
+    const v = await page.$('#cart-count');
+    text = await v.getProperty('innerText');
+    t = await text.jsonValue();
+    if(t != "20") {maxValCheck = false;}
+    expect(maxValCheck).toBe(true);
   }, 10000);
 
   // Check to make sure that the cart in localStorage is what you expect
